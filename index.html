@@ -1,535 +1,225 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bolão da Copa</title>
-
-<style>
-body{
-    font-family:Arial, sans-serif;
-    background:#111827;
-    color:white;
-    margin:0;
-    padding:20px;
-}
-
-.container{
-    max-width:1000px;
-    margin:auto;
-}
-
-.card{
-    background:#1f2937;
-    padding:15px;
-    margin-bottom:15px;
-    border-radius:10px;
-}
-
-input{
-    padding:8px;
-    border:none;
-    border-radius:5px;
-    margin:5px;
-}
-
-button{
-    padding:8px 12px;
-    border:none;
-    border-radius:5px;
-    cursor:pointer;
-    background:#2563eb;
-    color:white;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-th, td{
-    border:1px solid #374151;
-    padding:8px;
-    text-align:center;
-}
-
-.rank1 { color:gold; }
-.rank2 { color:silver; }
-.rank3 { color:#cd7f32; }
-
-.hidden{
-    display:none;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle da Adega - Modo Jogo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #d32f2f;
+            margin-top: 0;
+        }
+        .preco-tag {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            background: #ffe082;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .form-grupo {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #1b5e20;
+        }
+        .lista-clientes {
+            margin-top: 20px;
+        }
+        .cliente-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            background: #fafafa;
+            margin-bottom: 8px;
+            border-radius: 5px;
+        }
+        .info {
+            flex: 1;
+        }
+        .nome {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .detalhes {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .acoes {
+            display: flex;
+            gap: 5px;
+        }
+        .btn-add {
+            background-color: #0288d1;
+        }
+        .btn-add:hover {
+            background-color: #01579b;
+        }
+        .btn-sub {
+            background-color: #f57c00;
+        }
+        .btn-sub:hover {
+            background-color: #e65100;
+        }
+        .btn-remover {
+            background-color: #c62828;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        .btn-remover:hover {
+            background-color: #8e24aa;
+        }
+        .total-geral {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 3px double #ccc;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .btn-zerar {
+            display: block;
+            width: 100%;
+            background-color: #37474f;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
 
 <div class="container">
+    <h1>Adega do Amigo 🍻</h1>
+    <div class="preco-tag">Brahma Chopp: R$ 3,50</div>
 
-    <h1>🏆 Bolão da Copa</h1>
-
-    <div id="loginCard" class="card">
-        <h2>Entrar</h2>
-
-        <input id="nickname" placeholder="Seu apelido">
-        <button onclick="login()">Entrar</button>
+    <div class="form-grupo">
+        <input type="text" id="nomeCliente" placeholder="Nome de quem chegou..." autocomplete="off">
+        <button onclick="adicionarCliente()">Adicionar</button>
     </div>
 
-    <div id="app" class="hidden">
+    <div class="lista-clientes" id="listaClientes"></div>
 
-        <div class="card">
-            <h2>👤 Jogador: <span id="currentUser"></span></h2>
-            <button onclick="logout()">Sair</button>
-        </div>
-
-        <div class="card">
-            <h2>⚽ Jogos</h2>
-            <div id="matches"></div>
-        </div>
-
-        <div class="card">
-            <h2>🛠 Admin (Resultados)</h2>
-
-            <input id="adminPass" placeholder="Senha Admin">
-
-            <div id="adminArea"></div>
-        </div>
-
-        <div class="card">
-            <h2>🏅 Ranking</h2>
-            <div id="ranking"></div>
-        </div>
-
+    <div class="total-geral" id="totalGeral">
+        Total de Cervejas: 0 | Total R$ 0,00
     </div>
 
+    <button class="btn-zerar" onclick="zerarTudo()">Limpar Tudo para o Próximo Jogo</button>
 </div>
 
 <script>
+    const PRECO_CERVEJA = 3.50;
+    let clientes = JSON.parse(localStorage.getItem('adega_clientes')) || [];
 
-// ----------------------
-// CONFIG
-// ----------------------
-
-const ADMIN_PASSWORD = "123456";
-
-// ----------------------
-// STORAGE
-// ----------------------
-
-function load(key, defaultValue){
-    return JSON.parse(localStorage.getItem(key)) || defaultValue;
-}
-
-function save(key, value){
-    localStorage.setItem(key, JSON.stringify(value));
-}
-
-// ----------------------
-// DADOS INICIAIS
-// ----------------------
-
-let users = load("users", []);
-
-let matches = load("matches", [
-    {
-        id:1,
-        home:"Brasil",
-        away:"Argentina",
-        date:"2026-06-15T16:00"
-    },
-    {
-        id:2,
-        home:"França",
-        away:"Alemanha",
-        date:"2026-06-16T18:00"
-    },
-    {
-        id:3,
-        home:"Espanha",
-        away:"Portugal",
-        date:"2026-06-17T21:00"
-    }
-]);
-
-let predictions = load("predictions", []);
-let results = load("results", []);
-
-let currentUser = localStorage.getItem("currentUser");
-
-// ----------------------
-// LOGIN
-// ----------------------
-
-function login(){
-
-    const nickname =
-        document.getElementById("nickname")
-        .value
-        .trim();
-
-    if(!nickname) return;
-
-    let user =
-        users.find(
-            u => u.name.toLowerCase() === nickname.toLowerCase()
-        );
-
-    if(!user){
-        user = {
-            id: Date.now().toString(),
-            name: nickname
-        };
-
-        users.push(user);
-        save("users", users);
+    function salvarDados() {
+        localStorage.setItem('adega_clientes', JSON.stringify(clientes));
+        renderizar();
     }
 
-    currentUser = user.id;
+    function adicionarCliente() {
+        const input = document.getElementById('nomeCliente');
+        const nome = input.value.trim();
+        
+        if (nome === "") {
+            alert("Digite o nome da pessoa!");
+            return;
+        }
 
-    localStorage.setItem(
-        "currentUser",
-        currentUser
-    );
+        clientes.push({ nome: nome, quantidade: 0 });
+        input.value = "";
+        salvarDados();
+    }
 
-    render();
-}
+    function alterarQtd(index, valor) {
+        clientes[index].quantidade += valor;
+        if (clientes[index].quantidade < 0) clientes[index].quantidade = 0;
+        salvarDados();
+    }
 
-function logout(){
-    localStorage.removeItem("currentUser");
-    location.reload();
-}
+    function removerCliente(index) {
+        if (confirm(`Remover ${clientes[index].nome} da lista?`)) {
+            clientes.splice(index, 1);
+            salvarDados();
+        }
+    }
 
-// ----------------------
-// PALPITES
-// ----------------------
+    function zerarTudo() {
+        if (confirm("Tem certeza que quer zerar a lista para o próximo jogo? Isso vai apagar tudo!")) {
+            clientes = [];
+            salvarDados();
+        }
+    }
 
-function savePrediction(matchId){
+    function renderizar() {
+        const listaHtml = document.getElementById('listaClientes');
+        listaHtml.innerHTML = "";
 
-    const g1 =
-        Number(document.getElementById(
-            `home-${matchId}`
-        ).value);
+        let totalCervejas = 0;
 
-    const g2 =
-        Number(document.getElementById(
-            `away-${matchId}`
-        ).value);
+        clientes.forEach((cliente, index) => {
+            const totalCliente = cliente.quantidade * PRECO_CERVEJA;
+            totalCervejas += cliente.quantidade;
 
-    let pred =
-        predictions.find(
-            p =>
-            p.userId === currentUser &&
-            p.matchId === matchId
-        );
-
-    if(pred){
-        pred.homeGoals = g1;
-        pred.awayGoals = g2;
-    }else{
-        predictions.push({
-            userId:currentUser,
-            matchId,
-            homeGoals:g1,
-            awayGoals:g2
+            listaHtml.innerHTML += `
+                <div class="cliente-card">
+                    <div class="info">
+                        <div class="nome">${cliente.nome}</div>
+                        <div class="detalhes">${cliente.quantidade} un. = <strong>R$ ${totalCliente.toFixed(2).replace('.', ',')}</strong></div>
+                    </div>
+                    <div class="acoes">
+                        <button class="btn-sub" onclick="alterarQtd(${index}, -1)">-1</button>
+                        <button class="btn-add" onclick="alterarQtd(${index}, 1)">+1</button>
+                        <button class="btn-remover" onclick="removerCliente(${index})">X</button>
+                    </div>
+                </div>
+            `;
         });
-    }
 
-    save("predictions", predictions);
-
-    alert("Palpite salvo!");
-    render();
-}
-
-// ----------------------
-// RESULTADOS
-// ----------------------
-
-function saveResult(matchId){
-
-    const pass =
-        document.getElementById("adminPass")
-        .value;
-
-    if(pass !== ADMIN_PASSWORD){
-        alert("Senha incorreta");
-        return;
-    }
-
-    const g1 =
-        Number(document.getElementById(
-            `result-home-${matchId}`
-        ).value);
-
-    const g2 =
-        Number(document.getElementById(
-            `result-away-${matchId}`
-        ).value);
-
-    let result =
-        results.find(
-            r => r.matchId === matchId
-        );
-
-    if(result){
-        result.homeGoals = g1;
-        result.awayGoals = g2;
-    }else{
-        results.push({
-            matchId,
-            homeGoals:g1,
-            awayGoals:g2
-        });
-    }
-
-    save("results", results);
-
-    render();
-}
-
-// ----------------------
-// PONTUAÇÃO
-// ----------------------
-
-function calculatePoints(pred, result){
-
-    if(
-        pred.homeGoals === result.homeGoals &&
-        pred.awayGoals === result.awayGoals
-    ){
-        return 10;
-    }
-
-    const predDiff =
-        pred.homeGoals - pred.awayGoals;
-
-    const resultDiff =
-        result.homeGoals - result.awayGoals;
-
-    if(
-        predDiff === 0 &&
-        resultDiff === 0
-    ){
-        return 3;
-    }
-
-    if(
-        (predDiff > 0 && resultDiff > 0) ||
-        (predDiff < 0 && resultDiff < 0)
-    ){
-        return 5;
-    }
-
-    return 0;
-}
-
-// ----------------------
-// RANKING
-// ----------------------
-
-function buildRanking(){
-
-    const ranking = users.map(user => {
-
-        let total = 0;
-
-        predictions
-            .filter(
-                p => p.userId === user.id
-            )
-            .forEach(pred => {
-
-                const result =
-                    results.find(
-                        r =>
-                        r.matchId === pred.matchId
-                    );
-
-                if(result){
-                    total += calculatePoints(
-                        pred,
-                        result
-                    );
-                }
-            });
-
-        return {
-            name:user.name,
-            points:total
-        };
-    });
-
-    ranking.sort(
-        (a,b) =>
-        b.points - a.points
-    );
-
-    return ranking;
-}
-
-// ----------------------
-// RENDER
-// ----------------------
-
-function render(){
-
-    if(!currentUser){
-        return;
-    }
-
-    document
-        .getElementById("loginCard")
-        .classList.add("hidden");
-
-    document
-        .getElementById("app")
-        .classList.remove("hidden");
-
-    const user =
-        users.find(
-            u => u.id === currentUser
-        );
-
-    document
-        .getElementById("currentUser")
-        .innerText = user.name;
-
-    // JOGOS
-
-    let html = "";
-
-    matches.forEach(match => {
-
-        const pred =
-            predictions.find(
-                p =>
-                p.userId === currentUser &&
-                p.matchId === match.id
-            );
-
-        html += `
-        <div class="card">
-            <strong>
-            ${match.home}
-            x
-            ${match.away}
-            </strong>
-
-            <br>
-            ${new Date(match.date).toLocaleString()}
-
-            <br><br>
-
-            <input
-                id="home-${match.id}"
-                type="number"
-                min="0"
-                value="${pred?.homeGoals ?? ''}"
-                style="width:60px">
-
-            <input
-                id="away-${match.id}"
-                type="number"
-                min="0"
-                value="${pred?.awayGoals ?? ''}"
-                style="width:60px">
-
-            <button
-                onclick="savePrediction(${match.id})">
-                Salvar
-            </button>
-        </div>
+        const valorTotalGeral = totalCervejas * PRECO_CERVEJA;
+        document.getElementById('totalGeral').innerHTML = `
+            Total de Cervejas: ${totalCervejas} <br>
+            Faturamento Total: R$ ${valorTotalGeral.toFixed(2).replace('.', ',')}
         `;
-    });
+    }
 
-    document
-        .getElementById("matches")
-        .innerHTML = html;
-
-    // ADMIN
-
-    let adminHtml = "";
-
-    matches.forEach(match => {
-
-        const result =
-            results.find(
-                r => r.matchId === match.id
-            );
-
-        adminHtml += `
-        <div style="margin-bottom:10px">
-
-            ${match.home}
-            x
-            ${match.away}
-
-            <br>
-
-            <input
-                id="result-home-${match.id}"
-                type="number"
-                value="${result?.homeGoals ?? ''}"
-                style="width:60px">
-
-            <input
-                id="result-away-${match.id}"
-                type="number"
-                value="${result?.awayGoals ?? ''}"
-                style="width:60px">
-
-            <button
-                onclick="saveResult(${match.id})">
-                Salvar Resultado
-            </button>
-
-        </div>
-        `;
-    });
-
-    document
-        .getElementById("adminArea")
-        .innerHTML = adminHtml;
-
-    // RANKING
-
-    const ranking = buildRanking();
-
-    let rankingHtml =
-    `
-    <table>
-        <tr>
-            <th>#</th>
-            <th>Jogador</th>
-            <th>Pontos</th>
-        </tr>
-    `;
-
-    ranking.forEach((p,index)=>{
-
-        let cls = "";
-
-        if(index===0) cls="rank1";
-        if(index===1) cls="rank2";
-        if(index===2) cls="rank3";
-
-        rankingHtml += `
-        <tr class="${cls}">
-            <td>${index+1}</td>
-            <td>${p.name}</td>
-            <td>${p.points}</td>
-        </tr>
-        `;
-    });
-
-    rankingHtml += "</table>";
-
-    document
-        .getElementById("ranking")
-        .innerHTML = rankingHtml;
-}
-
-render();
-
+    // Inicializa a tela com os dados salvos
+    renderizar();
 </script>
 
 </body>
